@@ -2,7 +2,9 @@
 -- good tutorial on how to setup a playdate sprite with movement here
 
 -- -- --
+--
 -- Globals
+--
 -- -- --
 
 import "CoreLibs/object"
@@ -145,49 +147,8 @@ local function destroyPoo(poo)
 
 	createExplosion(poo.x, poo.y)
 	poo:remove()
-	enemyCount -= 1
-
+	pooSpriteCount -= 1
 end
-
-
--- -- todo: convert this function to handle jumping over sprites
-
--- local function playerFire()
--- 	local s = gfx.sprite.new()
--- 	local img = gfx.image.new('images/doubleBullet')
--- 	local imgw, imgh = img:getSize()
--- 	s:setImage(img)
--- 	s:moveTo(player.x, player.y)
--- 	s:setCollideRect(0, 0, imgw, imgh)
-
--- 	function s:collisionResponse(other)
--- 		return gfx.sprite.kCollisionTypeOverlap
--- 	end
-
--- 	function s:update()
-
--- 		local newX = s.y - 20
-
--- 		if newX < -imgh then
--- 			s:remove()
--- 		else
--- 			local actualX, actualY, collisions, length = s:moveWithCollisions(s.x, newX)
--- 			for i = 1, length do
--- 				local collision = collisions[i]
--- 				if collision.other.isEnemy == true then
--- 					destroyEnemyPlane(collision.other)
--- 					s:remove()
--- 					score += 1
--- 				end
--- 			end
--- 		end
-
--- 	end
-
--- 	s:setZIndex(999)
--- 	s:add()
-
--- end
 
 local function createPoo()
 
@@ -226,7 +187,10 @@ local function createPoo()
 		if newX < 0 - h then
 			poo:remove()
 			pooSpriteCount -= 1
-		else
+        elseif newX <= 200 then
+            destroyPoo(poo) --todo: make this have conditions for collision or clearance
+            score += 1
+        else
             poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
 		end
 	end
