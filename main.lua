@@ -283,7 +283,7 @@ playerSpriteSetUp()
 local playerIsFalling = false
 
 function handleJumping()
-    if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") then -- todo: change this up arrow before finalizing button layout
+    if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") or playdate.buttonIsPressed(playdate.kButtonUp) then -- todo: change this up arrow before finalizing button layout
         if playerIsFalling then
             if playerYCurrent < playerYResting then
                 playerSprite:moveBy( 0, 8 )
