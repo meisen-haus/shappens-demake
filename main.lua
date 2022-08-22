@@ -161,7 +161,7 @@ local function createPoo()
 	local w, h = pooImg:getSize()
 	poo:setImage(pooImg)
     poo:setCollideRect(0, 0, w, h)
-	poo:moveTo(400 + h, math.random(240))
+	poo:moveTo(400 + h, math.random(120) + 120) --todo: spawn poo only at floor or higher
 	poo:add()
 
     poo.isEnemy = true
@@ -283,7 +283,7 @@ playerSpriteSetUp()
 local playerIsFalling = false
 
 function handleJumping()
-    if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") or playdate.buttonIsPressed(playdate.kButtonUp) then -- todo: change this up arrow before finalizing button layout
+    if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") or playdate.buttonIsPressed(playdate.kButtonUp) then --todo: remove b and a if required for something else
         if playerIsFalling then
             if playerYCurrent < playerYResting then
                 playerSprite:moveBy( 0, 8 )
