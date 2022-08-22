@@ -171,7 +171,6 @@ local function createPoo()
 	pooSpriteCount += 1
 
     function poo:collisionResponse(other)
-        destroyPoo(poo)
 		return gfx.sprite.kCollisionTypeOverlap
 	end
 
@@ -223,6 +222,15 @@ local playerSprite = nil
 local playerYResting = 120 -- reseting location of sprite's top
 local playerYCurrent = playerYResting -- initialize sprite at resting location of sprite
 
+local function updatePlayerHealth(action)
+    if action == "damage" and playerHealth ~= 4 then
+        playerHealth += 1
+    else 
+        print("you died") --todo: implement death screen
+    end
+
+end
+
 function playerSpriteSetUp()
 
     -- Set up the player sprite.
@@ -253,6 +261,7 @@ function playerSpriteSetUp()
 			local collision = collisions[i]
 			if collision.other.isEnemy == true then	-- crashed into enemy plane
 				destroyPoo(collision.other)
+                updatePlayerHealth("damage")
 				collision.other:remove()
 				score -= 1
 			end
@@ -267,7 +276,7 @@ function playerSpriteSetUp()
 
     import "healthTable" -- imports healthTable table
     
-    playerHealth = healthTable[0] -- setup player health 
+    playerHealth = 0 -- initialize playerHealth as 0 - corresponds to "INFO" on healthTable
 
 end
 
@@ -346,7 +355,7 @@ function playdate.update()
     playdate.timer.updateTimers()
 
 	gfx.setFont(font)
-    gfx.drawText('LEVEL: '..playerHealth, 2, 2)
+    gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
     gfx.drawText('SCORE: '..score, 300, 2)
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
