@@ -191,9 +191,6 @@ local function createPoo()
             score += 1
 			poo:remove()
 			pooSpriteCount -= 1
-        -- elseif newX <= 200 then
-            -- destroyPoo(poo) --todo: make this have conditions for collision or clearance
-            -- score += 1
         else
             poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
 		end
@@ -342,30 +339,15 @@ function playdate.update()
         notice = 'change == 0'        
     end
 
-	-- spawnEnemyIfNeeded()
 	spawnPooIfNeeded()
 	handleJumping()
-
-    -- if playdate.buttonIsPressed( playdate.kButtonUp ) then
-    --     playerSprite:moveBy( 0, -2 )
-    -- end
-    -- if playdate.buttonIsPressed( playdate.kButtonRight ) then
-    --     playerSprite:moveBy( 2, 0 )
-    -- end
-    -- if playdate.buttonIsPressed( playdate.kButtonDown ) then
-    --     playerSprite:moveBy( 0, 2 )
-    -- end
-    -- if playdate.buttonIsPressed( playdate.kButtonLeft ) then
-    --     playerSprite:moveBy( -2, 0 )
-    -- end
-
-    -- -- todo: remove above code when button press is settled 
 
 	gfx.sprite.update()
     playdate.timer.updateTimers()
 
 	gfx.setFont(font)
     gfx.drawText('LEVEL: '..playerHealth, 2, 2)
+    gfx.drawText('SCORE: '..score, 300, 2)
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
     
@@ -379,7 +361,6 @@ function playdate.update()
         -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
         -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
 	    -- gfx.drawText('max enemies: '..maxEnemies, 2, 30)
-	    -- gfx.drawText('score: '..score, 2, 44)
     end
 
 end
