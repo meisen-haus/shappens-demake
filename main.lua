@@ -161,7 +161,9 @@ local function createPoo()
 	local w, h = pooImg:getSize()
 	poo:setImage(pooImg)
     poo:setCollideRect(0, 0, w, h)
-	poo:moveTo(400 + h, math.random(120) + 120) --todo: spawn poo only at floor or higher
+    ---
+    -- The base of the player sprite at rest is 170 pixels
+	poo:moveTo(400 + h, math.random(170)) --todo: randomize on floor or in air more distinctly
 	poo:add()
 
     poo.isEnemy = true
@@ -169,6 +171,7 @@ local function createPoo()
 	pooSpriteCount += 1
 
     function poo:collisionResponse(other)
+        destroyPoo(poo)
 		return gfx.sprite.kCollisionTypeOverlap
 	end
 
@@ -185,11 +188,12 @@ local function createPoo()
         end
 
 		if newX < 0 - h then
+            score += 1
 			poo:remove()
 			pooSpriteCount -= 1
-        elseif newX <= 200 then
-            destroyPoo(poo) --todo: make this have conditions for collision or clearance
-            score += 1
+        -- elseif newX <= 200 then
+            -- destroyPoo(poo) --todo: make this have conditions for collision or clearance
+            -- score += 1
         else
             poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
 		end
@@ -219,7 +223,7 @@ end
 -- -- --
 
 local playerSprite = nil
-local playerYResting = 120 -- reseting location of sprite
+local playerYResting = 120 -- reseting location of sprite's top
 local playerYCurrent = playerYResting -- initialize sprite at resting location of sprite
 
 function playerSpriteSetUp()
