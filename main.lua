@@ -16,8 +16,9 @@ import "CoreLibs/animation"
 -- import 'CoreLibs/input' -- todo: not sure what this module does
 
 gfx = playdate.graphics -- playdate.graphics alias 
+gfx.setBackgroundColor(gfx.kColorBlack)
 
-local font = gfx.font.new('images/font/whiteglove-stroked') -- borrowed from Examples/2020
+font = gfx.font.new('images/font/whiteglove-stroked') -- borrowed from Examples/2020
 
 local notice = 'default notice' -- notice is used for debugging crank information
 crankChange = 0
@@ -123,19 +124,22 @@ end
 function createExplosion(x, y)
 
 	local s = gfx.sprite.new()
+    s.isExplosion = true
 	s.frame = 1
 	local img = gfx.image.new('images/explosion/'..s.frame)
 	s:setImage(img)
 	s:moveTo(x, y)
 
 	function s:update()
-		s.frame += 1
-		if s.frame > 11 then
-			s:remove()
-		else
-			local img = gfx.image.new('images/explosion/'..s.frame)
-			s:setImage(img)
-		end
+        if dead ~= true then
+            s.frame += 1
+            if s.frame > 11 then
+                s:remove()
+            else
+                local img = gfx.image.new('images/explosion/'..s.frame)
+                s:setImage(img)
+            end
+        end
 	end
 
 	s:setZIndex(2000)
@@ -233,7 +237,7 @@ local function updatePlayerHealth(action)
     if action == "damage" and playerHealth ~= 4 then
         playerHealth += 1
     else 
-        print("you died") --todo: implement death screen
+        handleDeath()
     end
 
 end
@@ -250,6 +254,7 @@ function playerSpriteSetUp()
     local w, h = playerImage:getSize()
     
     playerSprite = gfx.sprite.new( playerImage )
+    playerSprite.isPlayer = true
     playerSprite.frame = 1
 
     playerSprite:setCollideRect(0, 0, w, h)
@@ -265,42 +270,41 @@ function playerSpriteSetUp()
 		local dx = 0
 		local dy = 0
 
-        print(playerIsJumping)
-        print(playerIsFalling)
-
-        if playerIsJumping ~= true and playerIsFalling ~= true then -- these two states signal if the player is on the ground
-            if playerSprite.frame < 13 then
-                playerSprite.frame += 1
-            elseif playerSprite.frame == 13 then
-                playerSprite.frame = 1
+        if dead ~= true then
+            if playerIsJumping ~= true and playerIsFalling ~= true then -- these two states signal if the player is on the ground
+                if playerSprite.frame < 13 then
+                    playerSprite.frame += 1
+                elseif playerSprite.frame == 13 then
+                    playerSprite.frame = 1
+                end
+        
+                local playerImage = gfx.image.new('/images/player/player-run-'..playerSprite.frame)
+                assert( playerImage ) -- make sure the image was where we thought
+                
+                playerSprite:setImage(playerImage)
+            else
+                local playerImage = gfx.image.new('/images/player/player-jump-1')
+                assert( playerImage ) -- make sure the image was where we thought
+                
+                playerSprite:setImage(playerImage)
             end
-    
-            local playerImage = gfx.image.new('/images/player/player-run-'..playerSprite.frame)
-            assert( playerImage ) -- make sure the image was where we thought
-            
-            playerSprite:setImage(playerImage)
-        else
-            local playerImage = gfx.image.new('/images/player/player-jump-1')
-            assert( playerImage ) -- make sure the image was where we thought
-            
-            playerSprite:setImage(playerImage)
-        end
 
-		local actualX, actualY, collisions, length = playerSprite:moveWithCollisions(playerSprite.x + dx, playerSprite.y + dy)
-		for i = 1, length do
-			local collision = collisions[i]
-			if collision.other.isEnemy == true then	-- crashed into enemy plane
-				destroyPoo(collision.other)
-                updatePlayerHealth("damage")
-				collision.other:remove()
-				score -= 1
-            elseif collision.other.isPickup == true then
-                destroyPickup(collision.other)
-                --todo: implement item storage
-                collision.other:remove()
-                score += 10
-			end
-		end
+            local actualX, actualY, collisions, length = playerSprite:moveWithCollisions(playerSprite.x + dx, playerSprite.y + dy)
+            for i = 1, length do
+                local collision = collisions[i]
+                if collision.other.isEnemy == true then	-- crashed into enemy plane
+                    destroyPoo(collision.other)
+                    updatePlayerHealth("damage")
+                    collision.other:remove()
+                    score -= 1
+                elseif collision.other.isPickup == true then
+                    destroyPickup(collision.other)
+                    --todo: implement item storage
+                    collision.other:remove()
+                    score += 10
+                end
+            end
+        end
 
 	end
 
@@ -373,9 +377,9 @@ end
 --
 -- -- --
 
-gfx.setFont(font)
 
 function playdate.update()
+    gfx.setFont(font)
 
     local change, acceleratedChange = playdate.getCrankChange()
     crankChange = change
@@ -391,26 +395,26 @@ function playdate.update()
         notice = 'change == 0'        
     end
 
-    if not dead then
+    if dead ~= true then
         spawnPickupIfNeeded()
         spawnPooIfNeeded()
-        handleJumping()    
+        handleJumping()
     end
-
-
-	gfx.sprite.update()
+    
+    gfx.sprite.update()
+    
     playdate.timer.updateTimers()
-
+    
     gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
     gfx.drawText('SCORE: '..score, 300, 2)
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
     if playdate.isSimulator then
-	    playdate.drawFPS(2, 224)
+	    -- playdate.drawFPS(2, 224)
         -- gfx.drawText('crank state: '..notice, 2, 210)
         -- gfx.drawText('backgroundX: '..backgroundX, 2, 196)
-        gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
-        gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
+        -- gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
+        -- gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
         -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
         -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
         -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
