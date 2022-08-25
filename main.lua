@@ -11,14 +11,16 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
+import "CoreLibs/animation"
+
 -- import 'CoreLibs/input' -- todo: not sure what this module does
 
-local gfx = playdate.graphics -- playdate.graphics alias 
+gfx = playdate.graphics -- playdate.graphics alias 
 
 local font = gfx.font.new('images/font/whiteglove-stroked') -- borrowed from Examples/2020
 
 local notice = 'default notice' -- notice is used for debugging crank information
-local crankChange = 0
+crankChange = 0
 
 -- -- --
 -- 
@@ -30,7 +32,7 @@ local backgroundX = 0 -- used to calculate background wrapping behaviour
 local backgroundWidth = 0 -- used for both backgrounds
 local backgroundWallY = 0 -- holds y coordinate for upperleft pixel of backgroundWall
 local backgroundWallYOffset = 0 -- used to derive offset of backgroundWallY when jumping
-local foregroundSpriteYOffset = 0
+foregroundSpriteYOffset = 0
 
 local function createBackgroundSprites()
 
@@ -83,7 +85,6 @@ local function createBackgroundSprites()
 	end
 
     function backgroundWall:update()
-
         self:markDirty()  -- todo: is this necessary?
 	end
 
@@ -107,7 +108,7 @@ createBackgroundSprites()
 local maxEnemies = 10
 local enemyCount = 0
 
-local maxBackgroundSprites = 4
+maxBackgroundSprites = 4
 local pooSpriteCount = 0
 
 local player = nil
@@ -119,7 +120,7 @@ for i = 1, 8 do
 	explosionImages[i] = gfx.image.new('images/x/'..i)
 end
 
-local function createExplosion(x, y)
+function createExplosion(x, y)
 
 	local s = gfx.sprite.new()
 	s.frame = 1
@@ -210,7 +211,13 @@ local function spawnPooIfNeeded()
 	end
 end
 
+-- -- --
+--
+-- Pickup Sprites
+-- 
+-- -- --
 
+import "pickups"
 
 -- -- --
 -- 
@@ -237,12 +244,14 @@ function playerSpriteSetUp()
     -- The :setCenter() call specifies that the sprite will be anchored at its center.
     -- The :moveTo() call moves our sprite to the center of the display.
 
-    local playerImage = gfx.image.new('images/sentry-logo.png')
+    local playerImage = gfx.image.new('/images/player/player-run-1')
     assert( playerImage ) -- make sure the image was where we thought
     
     local w, h = playerImage:getSize()
     
     playerSprite = gfx.sprite.new( playerImage )
+    playerSprite.frame = 1
+
     playerSprite:setCollideRect(0, 0, w, h)
     playerSprite:moveTo( 200, playerYCurrent ) -- this is where the center of the sprite is placed; (200,120) is the center of the Playdate screen
     playerSprite:add() -- This is critical!
@@ -256,6 +265,27 @@ function playerSpriteSetUp()
 		local dx = 0
 		local dy = 0
 
+        -- print(playerIsJumping)
+        -- print(playerIsFalling)
+
+        if playerIsJumping ~= true and playerIsFalling ~= true then -- these two states signal if the player is on the ground
+            if playerSprite.frame < 13 then
+                playerSprite.frame += 1
+            elseif playerSprite.frame == 13 then
+                playerSprite.frame = 1
+            end
+    
+            local playerImage = gfx.image.new('/images/player/player-run-'..playerSprite.frame)
+            assert( playerImage ) -- make sure the image was where we thought
+            
+            playerSprite:setImage(playerImage)
+        else
+            local playerImage = gfx.image.new('/images/player/player-jump-1')
+            assert( playerImage ) -- make sure the image was where we thought
+            
+            playerSprite:setImage(playerImage)
+        end
+
 		local actualX, actualY, collisions, length = playerSprite:moveWithCollisions(playerSprite.x + dx, playerSprite.y + dy)
 		for i = 1, length do
 			local collision = collisions[i]
@@ -264,6 +294,11 @@ function playerSpriteSetUp()
                 updatePlayerHealth("damage")
 				collision.other:remove()
 				score -= 1
+            elseif collision.other.isPickup == true then
+                destroyPickup(collision.other)
+                --todo: implement item storage
+                collision.other:remove()
+                score += 10
 			end
 		end
 
@@ -289,7 +324,7 @@ playerSpriteSetUp()
 -- -- --
 -- Handle Player Jumping
 -- -- -- 
--- local playerIsJumping = false -- todo: playerIsJumping seems redundant - remove?
+local playerIsJumping = false
 local playerIsFalling = false
 
 function handleJumping()
@@ -305,7 +340,7 @@ function handleJumping()
                 foregroundSpriteYOffset = 0
             end
         else
-		    -- playerIsJumping = true
+		    playerIsJumping = true
             playerSprite:moveBy( 0, -8 )
             foregroundSpriteYOffset = -8
             playerYCurrent += foregroundSpriteYOffset
@@ -313,9 +348,9 @@ function handleJumping()
         end
     elseif playerYCurrent < playerYResting then
         playerIsFalling = true
-        -- if playerIsJumping then
-        --     playerIsJumping = false
-        -- end
+        if playerIsJumping then
+            playerIsJumping = false
+        end
         playerSprite:moveBy( 0, 8 )
         foregroundSpriteYOffset = 8
         playerYCurrent += foregroundSpriteYOffset
@@ -348,7 +383,8 @@ function playdate.update()
         notice = 'change == 0'        
     end
 
-	spawnPooIfNeeded()
+    spawnPickupIfNeeded()
+	-- spawnPooIfNeeded()
 	handleJumping()
 
 	gfx.sprite.update()
@@ -364,8 +400,8 @@ function playdate.update()
 	    playdate.drawFPS(2, 224)
         -- gfx.drawText('crank state: '..notice, 2, 210)
         -- gfx.drawText('backgroundX: '..backgroundX, 2, 196)
-        -- gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182) -- todo: remove when playerIsJumping is removed
-        -- gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
+        gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
+        gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
         -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
         -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
         -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
