@@ -265,8 +265,8 @@ function playerSpriteSetUp()
 		local dx = 0
 		local dy = 0
 
-        -- print(playerIsJumping)
-        -- print(playerIsFalling)
+        print(playerIsJumping)
+        print(playerIsFalling)
 
         if playerIsJumping ~= true and playerIsFalling ~= true then -- these two states signal if the player is on the ground
             if playerSprite.frame < 13 then
@@ -322,10 +322,16 @@ end
 playerSpriteSetUp()
 
 -- -- --
+-- Handle Death
+-- -- --
+
+import "death"
+
+-- -- --
 -- Handle Player Jumping
 -- -- -- 
-local playerIsJumping = false
-local playerIsFalling = false
+playerIsJumping = false
+playerIsFalling = false
 
 function handleJumping()
     if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") or playdate.buttonIsPressed(playdate.kButtonUp) then --todo: remove b and a if required for something else
@@ -367,6 +373,8 @@ end
 --
 -- -- --
 
+gfx.setFont(font)
+
 function playdate.update()
 
     local change, acceleratedChange = playdate.getCrankChange()
@@ -383,19 +391,20 @@ function playdate.update()
         notice = 'change == 0'        
     end
 
-    spawnPickupIfNeeded()
-	-- spawnPooIfNeeded()
-	handleJumping()
+    if not dead then
+        spawnPickupIfNeeded()
+        spawnPooIfNeeded()
+        handleJumping()    
+    end
+
 
 	gfx.sprite.update()
     playdate.timer.updateTimers()
 
-	gfx.setFont(font)
     gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
     gfx.drawText('SCORE: '..score, 300, 2)
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
-    
     if playdate.isSimulator then
 	    playdate.drawFPS(2, 224)
         -- gfx.drawText('crank state: '..notice, 2, 210)

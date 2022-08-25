@@ -68,8 +68,6 @@ end
 
 
 function spawnPickupIfNeeded()
-    print(pickupSpriteCount)
-    print(maxBackgroundSprites)
 	if pickupSpriteCount < maxBackgroundSprites then
 		if math.random(math.floor(120/maxBackgroundSprites)) == 1 then
 			createPickup()
