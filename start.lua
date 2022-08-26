@@ -33,6 +33,11 @@ function handleStartUp()
             end
         else 
             local newY = logoSprite.y
+
+            if newY > 164 then
+                newY = 164
+            end
+
             logoSprite:moveTo( 200, newY - 2)
             if newY < - 30 then
                 logoSprite:remove()

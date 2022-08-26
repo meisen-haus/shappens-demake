@@ -12,6 +12,7 @@ import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "CoreLibs/animation"
+import "CoreLibs/ui"
 
 -- import 'CoreLibs/input' -- todo: not sure what this module does
 
@@ -89,10 +90,10 @@ local function createBackgroundSprites()
         self:markDirty()  -- todo: is this necessary?
 	end
 
-    backgroundWall:setZIndex(1)
+    backgroundWall:setZIndex(-32764)
 	backgroundWall:add()
 
-	backgroundFloor:setZIndex(0)
+	backgroundFloor:setZIndex(-32765)
 	backgroundFloor:add()
     
 end
@@ -384,12 +385,19 @@ import "start"
 
 handleStartUp()
 
+playdate.ui.crankIndicator:start()
+
+gfx.setFont(font)
+
 function playdate.update()
+    playdate.timer.updateTimers()
+
     if start == true and playdate.isCrankDocked() ~= true and clearing ~= true then
         clearStart()
+    elseif start == true and playdate.isCrankDocked() == true and clearing ~= true then
+        playdate.ui.crankIndicator:update()
     end
-
-    gfx.setFont(font)
+    
 
     local change, acceleratedChange = playdate.getCrankChange()
     crankChange = change
@@ -413,7 +421,6 @@ function playdate.update()
     
     gfx.sprite.update()
     
-    playdate.timer.updateTimers()
 
     if start ~= true then
         gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
