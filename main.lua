@@ -261,7 +261,7 @@ function playerSpriteSetUp()
     playerSprite.isPlayer = true
     playerSprite.frame = 1
 
-    playerSprite:setCollideRect(0, 0, w, h)
+    playerSprite:setCollideRect(14, 8, w - 28, h - 8) -- 
     playerSprite:moveTo( 200, playerYCurrent ) -- this is where the center of the sprite is placed; (200,120) is the center of the Playdate screen
     playerSprite:add() -- This is critical!
 
@@ -284,14 +284,20 @@ function playerSpriteSetUp()
         
                 local playerImage = gfx.image.new('/images/player/player-run-'..playerSprite.frame)
                 assert( playerImage ) -- make sure the image was where we thought
+                local w, h = playerImage:getSize()
                 
                 playerSprite:setImage(playerImage)
+                playerSprite:setCollideRect(14, 8, w - 28, h - 8)
             else
                 local playerImage = gfx.image.new('/images/player/player-jump-1')
                 assert( playerImage ) -- make sure the image was where we thought
+                local w, h = playerImage:getSize()
                 
                 playerSprite:setImage(playerImage)
+                playerSprite:setCollideRect(14, 8, w - 28, h - 8)
             end
+
+            
 
             local actualX, actualY, collisions, length = playerSprite:moveWithCollisions(playerSprite.x + dx, playerSprite.y + dy)
             for i = 1, length do
