@@ -21,14 +21,18 @@ function createPickup()
 
 	local pickupImg
 
-	pickupImg = gfx.image.new('images/map-file')
+	if math.random(2) > 1 then
+		pickupImg = gfx.image.new('images/map-file-no-trans')
+	else
+		pickupImg = gfx.image.new('images/dif-file-no-trans')
+	end
 
 	local w, h = pickupImg:getSize()
 	pickup:setImage(pickupImg)
     pickup:setCollideRect(0, 0, w, h)
     ---
     -- The base of the player sprite at rest is 170 pixels
-	pickup:moveTo(400 + h, math.random(170)) --todo: randomize on floor or in air more distinctly
+	pickup:moveTo(400 + w, 165 - (h/2) + backgroundWallYOffset) --todo: randomize on floor or in air more distinctly
 	pickup:add()
 
     -- pickup.isEnemy = true
@@ -57,7 +61,7 @@ function createPickup()
 				pickup:remove()
 				pickupSpriteCount -= 1
 			else
-				pickup:moveTo(newX, pickup.y - foregroundSpriteYOffset)
+				pickup:moveTo(newX, 165 - (h/2) + backgroundWallYOffset)
 			end
 		end
 		
@@ -66,14 +70,4 @@ function createPickup()
 
 	pickup:setZIndex(100)
 	return pickup
-end
-
-
-
-function spawnPickupIfNeeded()
-	if pickupSpriteCount < maxBackgroundSprites then
-		if math.random(math.floor(120/maxBackgroundSprites)) == 1 then
-			createPickup()
-		end
-	end
 end

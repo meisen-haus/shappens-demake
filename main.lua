@@ -33,7 +33,7 @@ crankChange = 0
 local backgroundX = 0 -- used to calculate background wrapping behaviour
 local backgroundWidth = 0 -- used for both backgrounds
 local backgroundWallY = 0 -- holds y coordinate for upperleft pixel of backgroundWall
-local backgroundWallYOffset = 0 -- used to derive offset of backgroundWallY when jumping
+backgroundWallYOffset = 0 -- used to derive offset of backgroundWallY when jumping
 foregroundSpriteYOffset = 0
 
 local function createBackgroundSprites()
@@ -110,7 +110,7 @@ createBackgroundSprites()
 local maxEnemies = 10
 local enemyCount = 0
 
-maxBackgroundSprites = 4
+maxBackgroundSprites = 5
 local pooSpriteCount = 0
 
 local player = nil
@@ -168,9 +168,18 @@ local function createPoo()
 	poo:setImage(pooImg)
     poo:setCollideRect(0, 0, w, h)
     ---
-    -- The base of the player sprite at rest is 170 pixels
-	poo:moveTo(400 + h, math.random(170)) --todo: randomize on floor or in air more distinctly
-	poo:add()
+    -- The base of the player sprite at rest is ~165 pixels
+    if math.random(10) >= 7 then
+        poo:moveTo(400, 20 + math.random(100))
+        poo.air = true
+        poo.modifier = 1 + math.random(3)
+	    poo:add()
+    else
+        poo:moveTo(400 + w, 165 - (h/2) + backgroundWallYOffset)
+        poo.air = false
+	    poo:add()
+    end
+	
 
     poo.isEnemy = true
 
@@ -190,7 +199,7 @@ local function createPoo()
             if crankChange >= 1 and (playerIsJumping or playerIsFalling) then
                 newX -= 2
             elseif crankChange <= -1 and (playerIsJumping or playerIsFalling) then
-                newX += 4
+                newX += 2 -- cranking backwards halts forward movement
             end
     
             if newX < 0 - h then
@@ -198,7 +207,12 @@ local function createPoo()
                 poo:remove()
                 pooSpriteCount -= 1
             else
-                poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
+                if poo.air == true then
+                    newX -= poo.modifier -- air poo moves faster randomly
+                    poo:moveTo(newX, poo.y - (foregroundSpriteYOffset / 2))
+                else
+                    poo:moveTo(newX, 165 - (h/2) + backgroundWallYOffset)
+                end
             end
         end
 
@@ -209,12 +223,20 @@ local function createPoo()
 	return poo
 end
 
-
+local pooFrames = 1
 
 local function spawnPooIfNeeded()
-	if pooSpriteCount < maxBackgroundSprites then
-		if math.random(math.floor(120/maxBackgroundSprites)) == 1 then
+    pooFrames += 1
+	if pooSpriteCount < maxBackgroundSprites and pooFrames > 50 then
+        local roll = math.random(24) 
+		if roll == 24 then
+            print('roll '..roll)
+            createPickup()
+            pooFrames = 1
+        elseif roll > 18 then
+            print('roll '..roll)
 			createPoo()
+            pooFrames = 1
 		end
 	end
 end
@@ -261,7 +283,7 @@ function playerSpriteSetUp()
     playerSprite.isPlayer = true
     playerSprite.frame = 1
 
-    playerSprite:setCollideRect(14, 8, w - 28, h - 8) -- 
+    playerSprite:setCollideRect(18, 8, w - 36, h - 14) -- 
     playerSprite:moveTo( 200, playerYCurrent ) -- this is where the center of the sprite is placed; (200,120) is the center of the Playdate screen
     playerSprite:add() -- This is critical!
 
@@ -414,14 +436,13 @@ function playdate.update()
         backgroundX -= 2 -- advance 4 px when cranking in air
         notice = 'change > 1'
     elseif change <= -1 and (playerIsJumping or playerIsFalling) then
-        backgroundX += 4 -- reverse 2 px when cranking in air
+        backgroundX += 2 -- halt forward movement when cranking backwards
         notice = 'change < -1'
     elseif change == 0 then
         notice = 'change == 0'
     end
 
     if dead ~= true and start == false then
-        spawnPickupIfNeeded()
         spawnPooIfNeeded()
         handleJumping()
     end
@@ -439,7 +460,7 @@ function playdate.update()
     if playdate.isSimulator then
 	    -- playdate.drawFPS(2, 224)
         -- gfx.drawText('crank state: '..notice, 2, 210)
-        -- gfx.drawText('backgroundX: '..backgroundX, 2, 196)
+        gfx.drawText('backgroundX: '..backgroundX, 2, 196)
         -- gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
         -- gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
         -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
