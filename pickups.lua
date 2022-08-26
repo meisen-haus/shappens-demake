@@ -18,7 +18,7 @@ function inventoryPickup()
 	inventory:add()
 
 	function inventory:update()
-		if playdate.buttonIsPressed("B") and playdate.buttonIsPressed("A") then
+		if playdate.buttonIsPressed("B") and playdate.buttonIsPressed("A") and playerHealth >= 1 then
 			updatePlayerHealth('heal')
 			playerHasPickup = false
 			inventory:remove()

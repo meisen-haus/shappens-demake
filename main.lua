@@ -159,9 +159,7 @@ local function createPoo()
 
 	local poo = gfx.sprite.new()
 
-	local pooImg
-
-	pooImg = gfx.image.new('images/poo')
+	local pooImg = gfx.image.new('images/poo')
 
 	local w, h = pooImg:getSize()
 	poo:setImage(pooImg)
@@ -219,21 +217,19 @@ local function createPoo()
 
 
 	poo:setZIndex(100)
-	return poo
 end
 
 local pooFrames = 1
 
 local function spawnPooIfNeeded()
     pooFrames += 1
-	if pooSpriteCount < maxBackgroundSprites and pooFrames > 50 then
+	if pooSpriteCount <= maxBackgroundSprites and pooFrames >= 40 then
         local roll = math.random(24) 
 		if roll == 24 then
-            print('roll '..roll)
             createPickup()
             pooFrames = 1
-        elseif roll > 18 then
-            print('roll '..roll)
+        elseif roll > 14 then
+            
 			createPoo()
             pooFrames = 1
 		end
@@ -262,7 +258,7 @@ function updatePlayerHealth(action)
     if action == "damage" and playerHealth ~= 4 then
         playerHealth += 1
     elseif action == "heal" then
-        playerHealth = 0
+            playerHealth -= 1
     else 
         handleDeath()
     end
@@ -350,11 +346,12 @@ function playerSpriteSetUp()
     -- taken from http://localhost:5500/Inside%20Playdate.html#basic-playdate-game
     -- good tutorial on how to setup a playdate sprite with movement here
 
-    import "healthTable" -- imports healthTable table
     
-    playerHealth = 0 -- initialize playerHealth as 0 - corresponds to "INFO" on healthTable
-
 end
+
+import "healthTable" -- imports healthTable table
+
+playerHealth = 0 -- initialize playerHealth as 0 - corresponds to "INFO" on healthTable
 
 -- Now we'll call the function above to configure our game.
 -- After this runs (it just runs once), nearly everything will be
@@ -471,7 +468,7 @@ function playdate.update()
     --     -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
     --     -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
     --     -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
-	--     -- gfx.drawText('max enemies: '..maxEnemies, 2, 30)
+	    gfx.drawText('pooo sprite count: '..pooSpriteCount, 2, 30)
     -- end
 
 end
