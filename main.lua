@@ -229,7 +229,7 @@ local function spawnPooIfNeeded()
             createPickup()
             pooFrames = 1
         elseif roll > 14 then
-            
+
 			createPoo()
             pooFrames = 1
 		end
@@ -468,7 +468,7 @@ function playdate.update()
     --     -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
     --     -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
     --     -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
-	    gfx.drawText('pooo sprite count: '..pooSpriteCount, 2, 30)
+	    -- gfx.drawText('pooo sprite count: '..pooSpriteCount, 2, 30)
     -- end
 
 end
