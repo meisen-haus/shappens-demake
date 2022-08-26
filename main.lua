@@ -109,8 +109,7 @@ createBackgroundSprites()
 
 local maxEnemies = 10
 local enemyCount = 0
-
-maxBackgroundSprites = 5
+maxBackgroundSprites = 6
 local pooSpriteCount = 0
 
 local player = nil
@@ -259,9 +258,11 @@ local playerSprite = nil
 local playerYResting = 120 -- reseting location of sprite's top
 local playerYCurrent = playerYResting -- initialize sprite at resting location of sprite
 
-local function updatePlayerHealth(action)
+function updatePlayerHealth(action)
     if action == "damage" and playerHealth ~= 4 then
         playerHealth += 1
+    elseif action == "heal" then
+        playerHealth = 0
     else 
         handleDeath()
     end
@@ -330,10 +331,14 @@ function playerSpriteSetUp()
                     collision.other:remove()
                     score -= 1
                 elseif collision.other.isPickup == true then
-                    destroyPickup(collision.other)
-                    --todo: implement item storage
+                    if playerHasPickup then
+                        score += 10
+                    else 
+                        playerHasPickup = true
+                        inventoryPickup()
+                    end
+                    pickupCount -= 1
                     collision.other:remove()
-                    score += 10
                 end
             end
         end
@@ -370,7 +375,7 @@ playerIsJumping = false
 playerIsFalling = false
 
 function handleJumping()
-    if playdate.buttonIsPressed("B") or playdate.buttonIsPressed("A") or playdate.buttonIsPressed(playdate.kButtonUp) then --todo: remove b and a if required for something else
+    if playdate.buttonIsPressed(playdate.kButtonUp) then
         if playerIsFalling then
             if playerYCurrent < playerYResting then
                 playerSprite:moveBy( 0, 8 )
@@ -457,16 +462,16 @@ function playdate.update()
     
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
-    if playdate.isSimulator then
-	    -- playdate.drawFPS(2, 224)
-        -- gfx.drawText('crank state: '..notice, 2, 210)
-        gfx.drawText('backgroundX: '..backgroundX, 2, 196)
-        -- gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
-        -- gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
-        -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
-        -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
-        -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
-	    -- gfx.drawText('max enemies: '..maxEnemies, 2, 30)
-    end
+    -- if playdate.isSimulator then
+	--     -- playdate.drawFPS(2, 224)
+    --     -- gfx.drawText('crank state: '..notice, 2, 210)
+    --     -- gfx.drawText('backgroundX: '..backgroundX, 2, 196)
+    --     -- gfx.drawText('player is jumping: '..tostring(playerIsJumping), 2, 182)
+    --     -- gfx.drawText('player is falling: '..tostring(playerIsFalling), 2, 168)
+    --     -- gfx.drawText('backgroundWallYOffset: '..backgroundWallYOffset, 2, 154)
+    --     -- gfx.drawText('foregroundSpriteYOffset'..foregroundSpriteYOffset, 2, 140)
+    --     -- gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 16)
+	--     -- gfx.drawText('max enemies: '..maxEnemies, 2, 30)
+    -- end
 
 end
