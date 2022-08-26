@@ -4,7 +4,6 @@ function handleDeath()
     dead = true
     local sprites = gfx.sprite.getAllSprites()
     local arrayCount, hashCount = table.getsize(sprites)
-    print(arrayCount)
 
     for i = 1, arrayCount do
         local sprite = sprites[i]
@@ -19,13 +18,10 @@ function handleDeath()
         end
     end
 
-    -- gfx.sprite.removeAll()
-
     local deathImage = gfx.image.new('/images/you-died')
     assert( deathImage ) -- make sure the image was where we thought
     
     local w, h = deathImage:getSize()
-    print(gfx.image.kDitherTypeBurkes)
     deathMessage = gfx.sprite.new( deathImage:fadedImage(0.02, gfx.image.kDitherTypeBurkes) )
     deathMessage.frame = 1
     deathMessage.fade = 0.02

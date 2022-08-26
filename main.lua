@@ -181,23 +181,26 @@ local function createPoo()
 
 	function poo:update()
 
-		local newX = poo.x
-        
-        if crankChange >= 1 then
-            newX -= 6
-        elseif crankChange <= -1 then
-            newX -= 4
-        elseif crankChange == 0 then
-            newX -= 4
+        if start ~= true then --only move sprites when start condition is false    
+            local newX = poo.x
+            
+            if crankChange >= 1 then
+                newX -= 6
+            elseif crankChange <= -1 then
+                newX -= 4
+            elseif crankChange == 0 then
+                newX -= 4
+            end
+    
+            if newX < 0 - h then
+                score += 1
+                poo:remove()
+                pooSpriteCount -= 1
+            else
+                poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
+            end
         end
 
-		if newX < 0 - h then
-            score += 1
-			poo:remove()
-			pooSpriteCount -= 1
-        else
-            poo:moveTo(newX, poo.y - foregroundSpriteYOffset)
-		end
 	end
 
 
@@ -377,8 +380,15 @@ end
 --
 -- -- --
 
+import "start"
+
+handleStartUp()
 
 function playdate.update()
+    if start == true and playdate.isCrankDocked() ~= true and clearing ~= true then
+        clearStart()
+    end
+
     gfx.setFont(font)
 
     local change, acceleratedChange = playdate.getCrankChange()
@@ -395,7 +405,7 @@ function playdate.update()
         notice = 'change == 0'        
     end
 
-    if dead ~= true then
+    if dead ~= true and start == false then
         spawnPickupIfNeeded()
         spawnPooIfNeeded()
         handleJumping()
@@ -404,9 +414,12 @@ function playdate.update()
     gfx.sprite.update()
     
     playdate.timer.updateTimers()
+
+    if start ~= true then
+        gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
+        gfx.drawText('SCORE: '..score, 300, 2)
+    end    
     
-    gfx.drawText('LEVEL: '..healthTable[playerHealth], 2, 2)
-    gfx.drawText('SCORE: '..score, 300, 2)
 	-- Above using this as example: gfx.drawText('sprite count: '..#gfx.sprite.getAllSprites(), 2, 2)
 
     if playdate.isSimulator then

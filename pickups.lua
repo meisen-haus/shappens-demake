@@ -42,22 +42,25 @@ function createPickup()
 
 	function pickup:update()
 
-		local newX = pickup.x
-        
-        if crankChange >= 1 then
-            newX -= 6
-        elseif crankChange <= -1 then
-            newX -= 4
-        elseif crankChange == 0 then
-            newX -= 4
-        end
-
-		if newX < 0 - h then
-			pickup:remove()
-			pickupSpriteCount -= 1
-        else
-            pickup:moveTo(newX, pickup.y - foregroundSpriteYOffset)
+		if start ~= true then -- only move sprites if the start condition is false
+			local newX = pickup.x
+			
+			if crankChange >= 1 then
+				newX -= 6
+			elseif crankChange <= -1 then
+				newX -= 4
+			elseif crankChange == 0 then
+				newX -= 4
+			end
+	
+			if newX < 0 - h then
+				pickup:remove()
+				pickupSpriteCount -= 1
+			else
+				pickup:moveTo(newX, pickup.y - foregroundSpriteYOffset)
+			end
 		end
+		
 	end
 
 
