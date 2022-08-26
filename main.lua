@@ -185,12 +185,12 @@ local function createPoo()
         if start ~= true then --only move sprites when start condition is false    
             local newX = poo.x
             
-            if crankChange >= 1 then
-                newX -= 6
-            elseif crankChange <= -1 then
-                newX -= 4
-            elseif crankChange == 0 then
-                newX -= 4
+            newX -= 2 -- always decrement position by 2
+
+            if crankChange >= 1 and (playerIsJumping or playerIsFalling) then
+                newX -= 2
+            elseif crankChange <= -1 and (playerIsJumping or playerIsFalling) then
+                newX += 4
             end
     
             if newX < 0 - h then
@@ -403,14 +403,15 @@ function playdate.update()
     crankChange = change
 
     notice = 'change == 0'
-    if change >= 1 then
-        backgroundX -= 2
+    backgroundX -= 2 -- always decrement backgroundX by 2 every frame
+    if change >= 1 and (playerIsJumping or playerIsFalling) then
+        backgroundX -= 2 -- advance 4 px when cranking in air
         notice = 'change > 1'
-    elseif change <= -1 then
-        backgroundX += 2 
+    elseif change <= -1 and (playerIsJumping or playerIsFalling) then
+        backgroundX += 4 -- reverse 2 px when cranking in air
         notice = 'change < -1'
     elseif change == 0 then
-        notice = 'change == 0'        
+        notice = 'change == 0'
     end
 
     if dead ~= true and start == false then

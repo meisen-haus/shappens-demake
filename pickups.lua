@@ -45,13 +45,13 @@ function createPickup()
 		if start ~= true then -- only move sprites if the start condition is false
 			local newX = pickup.x
 			
-			if crankChange >= 1 then
-				newX -= 6
-			elseif crankChange <= -1 then
-				newX -= 4
-			elseif crankChange == 0 then
-				newX -= 4
-			end
+            newX -= 2 -- always decrement position by 2
+
+            if crankChange >= 1 and (playerIsJumping or playerIsFalling) then
+                newX -= 2
+            elseif crankChange <= -1 and (playerIsJumping or playerIsFalling) then
+                newX += 4
+            end
 	
 			if newX < 0 - h then
 				pickup:remove()
