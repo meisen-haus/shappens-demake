@@ -64,9 +64,9 @@ function createPickup()
 				newX -= 2 -- always decrement position by 2
 
 				if crankChange >= 1 and (playerIsJumping or playerIsFalling) then
-					newX -= 2
+					newX -= 2 -- when player is jumping forward pickup will "advance" faster
 				elseif crankChange <= -1 and (playerIsJumping or playerIsFalling) then
-					newX += 4
+					newX += 2 -- when player is jumping straight up and down pickup will appear to remain still
 				end
 		
 				if newX < 0 - h then
